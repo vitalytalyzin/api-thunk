@@ -1,15 +1,19 @@
-import React, { Fragment } from 'react';
-import ServiceAdd from './components/ServiceAdd/ServiceAdd';
+import React from 'react';
+import { BrowserRouter as Router, Redirect, Route, Switch } from "react-router-dom";
 import ServiceList from './components/ServiceList/ServiceList';
-import ServiceFilter from './components/ServiceFilter/ServiceFilter';
+import ServiceEditPage from './components/ServiceEditPage/ServiceEditPage';
 
 const App = () => {
   return (
-    <Fragment>
-      <ServiceAdd />
-      <ServiceFilter />
-      <ServiceList />
-    </Fragment>
+    <Router>
+      <Switch>
+        <Route exact path='/'>
+          <Redirect to='/service' />
+        </Route>
+        <Route path="/service/:id" component={ServiceEditPage} />
+        <Route path="/service" component={ServiceList}/>
+      </Switch>
+    </Router>
   );
 }
 

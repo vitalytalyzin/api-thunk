@@ -1,37 +1,53 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { changeServiceField, removeService, clearServiceField } from '../../actions/actionCreators';
+import { Link } from 'react-router-dom';
+import {
+  fetchServicesSuccess, fetchServicesRequest, fetchServicesFailure,
+} from '../../actions/actionCreators';
+
+export const getData = async (dispatch) => {
+  dispatch(fetchServicesRequest());
+
+  await fetch(process.env.REACT_APP_API_URL)
+    .then(response => response.json())
+    .then(data => dispatch(fetchServicesSuccess(data)))
+    .catch(error => dispatch(fetchServicesFailure(error)));
+};
+
+export const removeServiceItem = async (dispatch, id) => {
+  await fetch(`${process.env.REACT_APP_API_URL}/${id}`, { method: 'DELETE' });
+};
 
 const ServiceList = () => {
-  const items = useSelector(({ serviceList }) => serviceList);
-  const { filterName } = useSelector(({ serviceFilter }) => serviceFilter);
+  const { isLoading, items, error } = useSelector(({ serviceList }) => serviceList);
   const dispatch = useDispatch();
 
-  const filteredItems = items.filter(({ name, price }) => {
-    const currentName = name.toLowerCase();
-    const currentPrice = String(price).toLowerCase();
-    const currentFilterName = filterName.toLowerCase();
+  useEffect(() => {
+    getData(dispatch);
+  }, [dispatch]);
 
-    return currentName.includes(currentFilterName) || currentPrice.includes(currentFilterName);
-  });
 
-  const handleRemove = id => {
-    dispatch(removeService(id));
-    dispatch(clearServiceField());
-  };
+  if (isLoading) {
+    return <div>...Думаем</div>;
+  }
 
-  const handleChange = (name, value, id) => {
-    dispatch(changeServiceField('name', name));
-    dispatch(changeServiceField('price', value));
-    dispatch(changeServiceField('id', id));
+  if (error) {
+    return <div>Что-то пошло не так</div>;
+  }
+
+  const handleRemove = async (id) => {
+    await removeServiceItem(dispatch, id);
+    await getData(dispatch);
   };
 
   return (
     <ul>
-      {filteredItems.map(item => (
+      {items.map(item => (
         <li key={item.id}>
           {item.name} {item.price}
-          <button onClick={() => handleChange(item.name, item.price, item.id)}>change</button>
+          {isLoading
+
+          }<Link to={`/service/${item.id}`}>change</Link>
           <button onClick={() => handleRemove(item.id)}>✕</button>
         </li>
       ))}

@@ -1,33 +1,27 @@
-import { nanoid } from 'nanoid';
 import {
-  ADD_SERVICE,
-  REMOVE_SERVICE,
-  UPDATE_SERVICE,
+  FETCH_SERVICES_FAILURE,
+  FETCH_SERVICES_REQUEST,
+  FETCH_SERVICES_SUCCESS,
 } from '../actions/actionTypes';
 
-const initialState = [
-  { id: nanoid(), name: 'Замена стекла', price: 21000 },
-  { id: nanoid(), name: 'Замена дисплея', price: 25000 },
-];
+const initialState = {
+  isLoading: false,
+  error: null,
+  items: [],
+};
 
 export default function serviceListReducer(state = initialState, action) {
   switch (action.type) {
-    case ADD_SERVICE: {
-      const { name, price } = action.payload;
-      return [...state, { id: nanoid(), name, price: Number(price) }];
+    case FETCH_SERVICES_REQUEST: {
+      return {...state, isLoading: true, error: null };
     }
-    case REMOVE_SERVICE: {
-      const { id } = action.payload;
-      return state.filter(service => service.id !== id);
+    case FETCH_SERVICES_SUCCESS: {
+      const { items } = action.payload;
+      return {...state, isLoading: false, items };
     }
-    case UPDATE_SERVICE: {
-      const { id, name, price } = action.payload;
-      return state.map(item => {
-        if (item.id === id) {
-          return { ...item, name, price: Number(price) };
-        }
-        return item;
-      });
+    case FETCH_SERVICES_FAILURE: {
+      const { error } = action.payload;
+      return {...state, isLoading: false, error };
     }
     default:
       return state;
