@@ -12,7 +12,7 @@ const initialState = {
   serviceInfo: {
     id: null,
     name: '',
-    price: undefined,
+    price: '',
     content: '',
   },
 };

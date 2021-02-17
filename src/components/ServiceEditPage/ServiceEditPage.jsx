@@ -5,7 +5,7 @@ import {
   changeServiceInfo,
   editServiceFailure,
   editServiceRequest,
-  editServiceSuccess,
+  editServiceSuccess, saveChangeService,
 } from '../../actions/actionCreators';
 import styled from './ServiceEditPage.module.css';
 
@@ -13,6 +13,7 @@ const ServiceEditPage = (props) => {
   const { match: { params } } = props;
   const dispatch = useDispatch();
   const { isLoading, error, serviceInfo } = useSelector(({ serviceEdit }) => serviceEdit);
+  const { loadingMode } = useSelector(({ serviceChange }) => serviceChange);
 
   const history = useHistory();
 
@@ -29,6 +30,10 @@ const ServiceEditPage = (props) => {
     getData();
   }, [dispatch, params.id]);
 
+  if (isLoading) {
+    return <div>Думаю...</div>;
+  }
+
   if (error) {
     return <div>Произошла ошибка</div>;
   }
@@ -40,7 +45,7 @@ const ServiceEditPage = (props) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    dispatch(editServiceRequest());
+    dispatch(saveChangeService());
 
     await fetch(process.env.REACT_APP_API_URL, {
       method: 'POST',
@@ -50,6 +55,7 @@ const ServiceEditPage = (props) => {
       .then(response => {
         if (response.ok) {
           history.push('/');
+          dispatch(saveChangeService());
         }
       })
       .catch(error => dispatch(editServiceFailure(error)));
@@ -59,7 +65,7 @@ const ServiceEditPage = (props) => {
 
   return (
     <form className={styled.form} onSubmit={handleSubmit}>
-      <fieldset disabled={isLoading} className={styled.formInner}>
+      <fieldset disabled={loadingMode} className={styled.formInner}>
         <label className={styled.label}>
           Название
           <input
@@ -85,7 +91,7 @@ const ServiceEditPage = (props) => {
           />
         </label>
         <button onClick={() => handleClose()}>Отмена</button>
-        {isLoading ? (<button>...Минуточку</button>) : (<button>Сохранить</button>)}
+        {loadingMode ? (<button>...Минуточку</button>) : (<button>Сохранить</button>)}
       </fieldset>
     </form>
   );
