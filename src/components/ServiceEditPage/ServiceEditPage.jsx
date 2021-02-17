@@ -3,9 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import {
   changeServiceInfo,
-  editServiceFailure,
-  editServiceRequest,
-  editServiceSuccess, saveChangeService,
+  fetchChangeService,
+  fetchService,
 } from '../../actions/actionCreators';
 import styled from './ServiceEditPage.module.css';
 
@@ -18,16 +17,7 @@ const ServiceEditPage = (props) => {
   const history = useHistory();
 
   useEffect(() => {
-    const getData = async () => {
-      dispatch(editServiceRequest());
-
-      await fetch(`${process.env.REACT_APP_API_URL}/${params.id}`)
-        .then(response => response.json())
-        .then(data => dispatch(editServiceSuccess(data)))
-        .catch(error => dispatch(editServiceFailure(error)));
-    };
-
-    getData();
+    dispatch(fetchService(params.id));
   }, [dispatch, params.id]);
 
   if (isLoading) {
@@ -45,20 +35,7 @@ const ServiceEditPage = (props) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    dispatch(saveChangeService());
-
-    await fetch(process.env.REACT_APP_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(serviceInfo),
-    })
-      .then(response => {
-        if (response.ok) {
-          history.push('/');
-          dispatch(saveChangeService());
-        }
-      })
-      .catch(error => dispatch(editServiceFailure(error)));
+    dispatch(fetchChangeService(history));
   };
 
   const handleClose = () => history.push('/');

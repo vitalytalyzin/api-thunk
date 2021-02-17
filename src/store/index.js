@@ -1,4 +1,5 @@
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
+import thunk from 'redux-thunk';
 import serviceListReducer from '../reducers/serviceList';
 import serviceEditReducer from '../reducers/serviceEdit';
 import serviceRemoveReducer from '../reducers/serviceRemove';
@@ -11,9 +12,10 @@ const reducer = combineReducers({
   serviceChange: serviceChangeReducer,
 });
 
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
   reducer,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+  composeEnhancers(applyMiddleware(thunk)),
 );
 
 export default store;
